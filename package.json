@@ -111,7 +111,7 @@
     "boxen": "^7.0.0",
     "colors": "^1.4.0",
     "coveralls": "^3.1.1",
-    "cross-spawn": "^7.0.3",
+    "cross-spawn": "^7.0.5",
     "eslint": "^8.29.0",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-config-prettier": "^8.3.0",
