@@ -70,7 +70,11 @@ export namespace Options {
     embedding: boolean | Partial<Embedding>
   }
 
-  export interface Manual extends Partial<Common>, Partial<ManualBooleans> {
+  type NullablePartial<T> = { [P in keyof T]?: T[P] | undefined | null }
+
+  export interface Manual
+    extends NullablePartial<Common>,
+      Partial<ManualBooleans> {
     grid?:
       | boolean
       | number
