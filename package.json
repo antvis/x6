@@ -145,7 +145,7 @@
     "prettier": "^2.8.0",
     "pretty-quick": "^3.1.1",
     "rimraf": "^3.0.2",
-    "rollup": "^3.7.4",
+    "rollup": "^3.29.5",
     "rollup-plugin-auto-external": "^2.0.0",
     "rollup-plugin-filesize": "^9.1.1",
     "rollup-plugin-postcss": "^4.0.1",
