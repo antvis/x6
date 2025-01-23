@@ -12,7 +12,8 @@ export class JobQueue {
     } else {
       const index = this.findInsertionIndex(job)
       if (index >= 0) {
-        this.queue.splice(index, 0, job)
+        const itemIndex = this.queue.findIndex((item) => item.id === job.id);
+        this.queue.splice(itemIndex !== -1 ? itemIndex : index, itemIndex !== -1 ? 1 : 0, job);
       }
     }
   }

@@ -75,7 +75,7 @@ export class Animation {
       options.start && options.start(this.getArgs<T>(key))
     }, options.delay)
 
-    return this.stop.bind(this, path, delim, options)
+    return this.stop.bind(this, path, options,delim)
   }
 
   stop<T extends Animation.TargetValue>(
