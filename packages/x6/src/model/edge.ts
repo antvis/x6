@@ -1183,6 +1183,7 @@ export namespace Edge {
 
   export function create(options: Metadata) {
     const shape = options.shape || 'edge'
+    // 从registry 注册中心获取对应边的构造函数
     const Ctor = registry.get(shape)
     if (Ctor) {
       return new Ctor(options)

@@ -183,6 +183,10 @@ const dataSource = [
     example: 'history',
     description: '时光回溯',
   },
+  {
+    example: 'minimap',
+    description: '小地图',
+  },
 ].map((item, index) => ({ key: index, ...item }))
 
 const columns = [

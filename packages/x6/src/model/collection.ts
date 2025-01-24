@@ -105,6 +105,8 @@ export class Collection extends Basecoat<Collection.EventArgs> {
         }
         this.trigger('added', args)
         if (!localOptions.dryrun) {
+          // 元素添加后触发added事件，从而创建对应的CellView对象(NodeView、EdgeView )
+          // 会触发model.notify('cell:added')事件，Scheduler 监听了model.on('cell:added')事件，从而在Scheduler中创建对应的CellView对象(NodeView、EdgeView )
           cell.notify('added', { ...args })
         }
       })

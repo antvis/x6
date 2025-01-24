@@ -1188,6 +1188,7 @@ export namespace Node {
 
   export function create(options: Metadata) {
     const shape = options.shape || 'rect'
+    // 从registry 注册中心获取对应图形的构造函数（自定义的图形也会在registry中注册）
     const Ctor = registry.get(shape)
     if (Ctor) {
       return new Ctor(options)

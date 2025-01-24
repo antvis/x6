@@ -29,8 +29,10 @@ export class VueShapeView extends NodeView<VueShape> {
     const graph = this.graph
 
     if (root) {
+      // 从registry注册表中获取组件自定义vue组件
       const { component } = shapeMaps[node.shape]
       if (component) {
+        //  渲染自定义vue组件
         if (isVue2) {
           const Vue = Vue2 as any
           this.vm = new Vue({

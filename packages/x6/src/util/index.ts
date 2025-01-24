@@ -5,8 +5,8 @@ import {
   Polyline,
   Ellipse,
   Path,
-} from '@antv/x6-geometry'
-import { Dom, PointData, PointLike } from '@antv/x6-common'
+} from '../../../x6-geometry/src/index'
+import { Dom, PointData, PointLike } from '../../../x6-common/src/index'
 import { normalize } from '../registry/marker/util'
 
 export namespace Util {
@@ -15,6 +15,7 @@ export namespace Util {
    * Transforms point by an SVG transformation represented by `matrix`.
    */
   export function transformPoint(point: Point.PointLike, matrix: DOMMatrix) {
+    // 构建一个svg point对象之后，并基于matrix矩阵进行矩阵转换
     const ret = Dom.createSVGPoint(point.x, point.y).matrixTransform(matrix)
     return new Point(ret.x, ret.y)
   }

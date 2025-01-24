@@ -1,5 +1,5 @@
-import { Dom, NumberExt } from '@antv/x6-common'
-import { Point, Rectangle } from '@antv/x6-geometry'
+import { Dom, NumberExt } from '../../../x6-common/src/index'
+import { Point, Rectangle } from '../../../x6-geometry/src/index'
 import { Base } from './base'
 import { Util } from '../util'
 import { Cell } from '../model'
@@ -322,6 +322,7 @@ export class TransformManager extends Base {
     options: TransformManager.ScaleContentToFitOptions = {},
     translate = true,
   ) {
+    console.log('scaleContentToFitImpl', options)
     let contentBBox
     let contentLocalOrigin
     if (options.contentArea) {
@@ -367,8 +368,10 @@ export class TransformManager extends Base {
     })
 
     const currentScale = this.getScale()
-
+    // 新的X轴缩放比(scaleX) = (视口宽 / 内容区域宽) * 当前X轴缩放比
+    // 保证区域内容都在视口中展示
     let newSX = (fittingBox.width / contentBBox.width) * currentScale.sx
+    // 新的y轴缩放比(scaleY) = (视口高 / 内容区域高) * 当前Y轴缩放比
     let newSY = (fittingBox.height / contentBBox.height) * currentScale.sy
 
     if (options.preserveAspectRatio !== false) {
@@ -421,8 +424,10 @@ export class TransformManager extends Base {
     const area = Rectangle.create(rect)
     const graph = this.graph
 
+    // 内容区域位置信息
     options.contentArea = area
     if (options.viewportArea == null) {
+      // 视口位置信息(视口一般会小于内容区域位置，移动视口可以看内容区域不同位置)
       options.viewportArea = {
         x: graph.options.x,
         y: graph.options.y,
@@ -459,6 +464,7 @@ export class TransformManager extends Base {
     y = cy - y * scale.sy // eslint-disable-line
 
     if (ts.tx !== x || ts.ty !== y) {
+      console.log('centerPoint', x, y)
       this.translate(x, y)
     }
   }

@@ -7,6 +7,7 @@ import { CellView, EdgeView } from '../view'
 import { Util } from '../util'
 
 export class Renderer extends Base {
+  // 初始化Renderer时，传入graph；再Renderer中的Scheduler调度器中，监听graph的相关事件，注意这里监听的是model的事件（例如添加节点cell:added），然后进行渲染更新
   private readonly schedule: Scheduler = new Scheduler(this.graph)
 
   requestViewUpdate(view: CellView, flag: number, options: any = {}) {
@@ -34,10 +35,12 @@ export class Renderer extends Base {
         : elem[0]
 
     if (target) {
+      // 通过当前target元素，一直向上查找元素，直到找到拥有data-cell-id属性的元素，获取id值，在schedule中的views中，通过id找到对应的view
       const id = this.graph.view.findAttr('data-cell-id', target)
       if (id) {
         const views = this.schedule.views
         if (views[id]) {
+          // 返回view
           return views[id].view
         }
       }

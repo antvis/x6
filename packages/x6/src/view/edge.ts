@@ -1403,7 +1403,9 @@ export class EdgeView<
   }
 
   onClick(e: Dom.ClickEvent, x: number, y: number) {
+     // 触发CellView的click事件 graph.on('cell:click')
     super.onClick(e, x, y)
+    // 触发EdgeView的click事件 graph.on('edge:click')
     this.notify('edge:click', this.getEventArgs(e, x, y))
   }
 

@@ -8,6 +8,8 @@ import './special'
 export namespace Core {
   let triggered: string | undefined
 
+
+  // Dom的事件注册，与Graph本身的事件注册机制区分开；使用Dom.Event.on进行Dom事件注册
   export function on(
     elem: Store.EventTarget,
     types: string,
@@ -37,13 +39,14 @@ export namespace Core {
     // if (!Util.isValidSelector(elem, selector)) {
     //   throw new Error('Delegate event with invalid selector.')
     // }
-
+    // 确保elem进入store，后续dispatch 中Util.getHandlerQueue(elem, event)会用到
     const store = Store.ensure(elem)
 
     // Ensure the main handle
     let mainHandler = store.handler
     if (mainHandler == null) {
       mainHandler = store.handler = function (e, ...args: any[]) {
+        // 事件处理器
         return triggered !== e.type ? dispatch(elem, e, ...args) : undefined
       }
     }
@@ -61,6 +64,8 @@ export namespace Core {
       }
 
       let type = originType
+      // 事件名称hook，通过事件名转换成其它事件名称；EventHook.register方法注册转换逻辑
+      // 例如mouseenter 会被转换为mouseover 事件
       let hook = EventHook.get(type)
 
       // If selector defined, determine special event type, otherwise given type
@@ -106,8 +111,10 @@ export namespace Core {
         Util.setHandlerId(handleObj.handler, guid)
       }
 
+
       // Add to the element's handler list, delegates in front
       if (selector) {
+        // 有选择器的情况下（理解为具体的cell选择器），将delegateCount+1，代表有多少个具体cell选择器
         bag.handlers.splice(bag.delegateCount, 0, handleObj)
         bag.delegateCount += 1
       } else {
@@ -209,6 +216,7 @@ export namespace Core {
     evt: Event | EventObject | string,
     ...args: any[]
   ) {
+    // 构建自定义的event数据
     const event = EventObject.create(evt)
     event.delegateTarget = elem as Element
 
@@ -240,10 +248,12 @@ export namespace Core {
           event.rnamespace == null ||
           (handleObj.namespace && event.rnamespace.test(handleObj.namespace))
         ) {
+          // 恢复之前的操作数据
           event.handleObj = handleObj
           event.data = handleObj.data
 
           const hookHandle = EventHook.get(handleObj.originType).handle
+          // console.log('dispatch 事件触发', handleObj.originType)
 
           const result = hookHandle
             ? hookHandle(matched.elem as Store.EventTarget, event, ...args)

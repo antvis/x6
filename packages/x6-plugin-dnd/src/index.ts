@@ -15,6 +15,10 @@ import {
 import { alignPoint } from 'dom-align'
 import { content } from './style/raw'
 
+/**
+ * 拖拽键入画布插件
+ * drag and drop => dnd
+ */
 export class Dnd extends View implements Graph.Plugin {
   public name = 'dnd'
 

@@ -3,7 +3,7 @@
   "name": "@antv/x6-example-features",
   "version": "2.1.1",
   "scripts": {
-    "start": "export NODE_OPTIONS=--openssl-legacy-provider && umi dev",
+    "start": "set NODE_OPTIONS=--openssl-legacy-provider && umi dev",
     "build": "umi build",
     "lint": "eslint 'src/**/*.{js,ts}?(x)' --fix"
   },

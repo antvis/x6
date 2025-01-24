@@ -252,6 +252,7 @@ export class Model extends Basecoat<Model.EventArgs> {
   }
 
   createNode(metadata: Node.Metadata) {
+    // 构建Node模型
     return Node.create(metadata)
   }
 
@@ -262,6 +263,7 @@ export class Model extends Basecoat<Model.EventArgs> {
   }
 
   createEdge(metadata: Edge.Metadata) {
+    // 构建Edge模型
     return Edge.create(metadata)
   }
 

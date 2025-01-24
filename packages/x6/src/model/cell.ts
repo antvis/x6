@@ -8,8 +8,8 @@ import {
   KeyValue,
   Size,
   Basecoat,
-} from '@antv/x6-common'
-import { Rectangle, Point } from '@antv/x6-geometry'
+} from '../../../x6-common/src/index'
+import { Rectangle, Point } from '../../../x6-geometry/src/index'
 import { NonUndefined } from 'utility-types'
 import { Attr } from '../registry'
 import { Model } from './model'

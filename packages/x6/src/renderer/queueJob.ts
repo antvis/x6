@@ -58,7 +58,9 @@ export class JobQueue {
       this.queueFlush()
     }
   }
-
+  /**
+   * 同步刷新执行任务队列
+   */
   flushJobsSync() {
     this.isFlushPending = false
     this.isFlushing = true
@@ -76,6 +78,11 @@ export class JobQueue {
     this.isFlushing = false
   }
 
+  /**
+   * 二分法查找任务插入的位置，优先级高的排列在前
+   * @param job 
+   * @returns 
+   */
   private findInsertionIndex(job: Job) {
     let left = 0
     let ins = this.queue.length
@@ -92,7 +99,9 @@ export class JobQueue {
     }
     return ins
   }
-
+  /**
+   * 异步任务调度，使用requestIdleCallback/setTimeout实现
+   */
   private scheduleJob() {
     if ('requestIdleCallback' in window) {
       if (this.scheduleId) {

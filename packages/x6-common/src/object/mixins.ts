@@ -1,4 +1,5 @@
 /**
+ * 对象属性混入mixins
  * @see https://www.typescriptlang.org/docs/handbook/mixins.html
  */
 export function applyMixins(derivedCtor: any, ...baseCtors: any[]) {

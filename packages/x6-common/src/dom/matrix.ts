@@ -31,6 +31,7 @@ export interface Scale {
 }
 
 /**
+ * 构建svg中的Point点对象
  * Returns a SVG point object initialized with the `x` and `y` coordinates.
  * @see https://developer.mozilla.org/en/docs/Web/API/SVGPoint
  */

@@ -7,6 +7,7 @@ import { FlagManager } from '../view/flag'
 import { Graph } from '../graph'
 
 export class Scheduler extends Disposable {
+  // 存储所有的NodeView、EdgeView
   public views: KeyValue<Scheduler.View> = {}
   public willRemoveViews: KeyValue<Scheduler.View> = {}
   protected zPivots: KeyValue<Comment>
@@ -186,6 +187,7 @@ export class Scheduler extends Disposable {
             options,
             state: Scheduler.ViewState.CREATED,
           }
+          // scheduler中的views,存储所有的CellView(NodeView、EdgeView)
           this.views[id] = viewItem
         }
       }
@@ -316,6 +318,7 @@ export class Scheduler extends Disposable {
     if (viewItem) {
       const zIndex = view.cell.getZIndex()
       const pivot = this.addZPivot(zIndex)
+      // 先将view(NodeView/EdgeView)的Dom框架内容插入到container
       this.container.insertBefore(view.container, pivot)
 
       if (!view.cell.isVisible()) {

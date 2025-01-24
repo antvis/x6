@@ -518,8 +518,11 @@ export class NodeView<
   }
 
   onClick(e: Dom.ClickEvent, x: number, y: number) {
+    // 触发CellView的click事件 graph.on('cell:click')
     super.onClick(e, x, y)
+    // 触发NodeView的click事件 graph.on('node:click')，这个监听会更具体
     this.notify('node:click', this.getEventArgs(e, x, y))
+    // 触发连接桩点击事件
     this.notifyPortEvent('node:port:click', e, { x, y })
   }
 
@@ -1052,21 +1055,28 @@ export class NodeView<
 
     return area || null
   }
-
+  /**
+   * 开始节点拖拽
+   * @param e 
+   * @param x 
+   * @param y 
+   * @returns 
+   */
   protected startNodeDragging(e: Dom.MouseDownEvent, x: number, y: number) {
     const targetView = this.getDelegatedView()
     if (targetView == null || !targetView.can('nodeMovable')) {
       return this.notifyUnhandledMouseDown(e, x, y)
     }
-
+    // 往自定义event中传数据
     this.setEventData<EventData.Moving>(e, {
       targetView,
       action: 'move',
     })
-
+    // 当前cell的位置
     const position = Point.create(targetView.cell.getPosition())
     targetView.setEventData<EventData.MovingTargetNode>(e, {
       moving: false,
+      // 当前点击位置相对于cell的位置的偏移量
       offset: position.diff(x, y),
       restrict: this.getRestrictArea(targetView),
     })
@@ -1104,7 +1114,12 @@ export class NodeView<
       this.processEmbedding(e, data)
     }
   }
-
+  /**
+   * 结束时间拖拽
+   * @param e 
+   * @param x 
+   * @param y 
+   */
   protected stopNodeDragging(e: Dom.MouseUpEvent, x: number, y: number) {
     const data = this.getEventData<EventData.MovingTargetNode>(e)
     if (data.embedding) {

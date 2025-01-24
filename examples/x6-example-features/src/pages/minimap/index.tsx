@@ -1,6 +1,6 @@
 import * as React from 'react'
-import { Graph } from '@antv/x6'
-import { MiniMap } from '@antv/x6-plugin-minimap'
+import { Graph } from '../../../../../packages/x6/src/index'
+import { MiniMap } from '../../../../../packages/x6-plugin-minimap/src/index'
 import { Scroller } from '@antv/x6-plugin-scroller'
 import { Radio } from 'antd'
 import { SimpleNodeView } from './simple-view'
@@ -18,29 +18,27 @@ export default class Example extends React.Component {
 
   componentDidMount() {
     this.graph = new Graph({
+      panning: {
+        enabled: true,
+        modifiers: [],
+        eventTypes: ['leftMouseDown'],
+      },
+      mousewheel: {
+        enabled: true,
+      },
       container: this.container,
-      width: 600,
-      height: 320,
+      width: 1600,
+      height: 800,
       background: {
         color: '#F2F7FA',
       },
     })
 
-    this.graph.use(
-      new Scroller({
-        pageVisible: true,
-        pageBreak: false,
-        pannable: true,
-      }),
-    )
-    this.graph.use(
-      new MiniMap({
-        container: this.minimapContainer,
-        width: 200,
-        height: 160,
-        padding: 10,
-      }),
-    )
+    // this.graph.use(
+    //   new Scroller({
+    //     pannable: false,
+    //   }),
+    // )
 
     this.graph.addNode({
       x: 200,
@@ -78,8 +76,8 @@ export default class Example extends React.Component {
 
     const target = this.graph.addNode({
       shape: 'circle',
-      x: 160,
-      y: 180,
+      x: 1160,
+      y: 2180,
       width: 60,
       height: 60,
       label: 'World',
@@ -102,6 +100,30 @@ export default class Example extends React.Component {
         },
       },
     })
+
+    // this.graph.use(
+    //   new MiniMap({
+    //     container: this.minimapContainer,
+    //     width: 400,
+    //     height: 400,
+    //     padding: 1,
+    //     preserveAspectRatio: false,
+    //     graphOptions: {
+    //       width: 400,
+    //       height: 400,
+    //     },
+    //   }),
+    // )
+
+
+    this.graph.on('cell:click', ({ e, x, y, cell, view }) => {
+      console.log('graph cell:click')
+    })
+
+    this.graph.on('node:click',()=>{
+      console.log('graph node:click')
+    })
+
   }
 
   onMinimapViewChange = (val: string) => {
@@ -148,6 +170,9 @@ export default class Example extends React.Component {
   refMiniMapContainer = (container: HTMLDivElement) => {
     this.minimapContainer = container
   }
+  changeSize = () => {
+    this.graph.resize(1800, 800)
+  }
 
   render() {
     return (
@@ -159,6 +184,7 @@ export default class Example extends React.Component {
             defaultValue={'detailed'}
             optionType="button"
           />
+          <button onClick={this.changeSize}>Change Size</button>
         </div>
         <div className="app-content" ref={this.refContainer} />
         <div className="app-minimap" ref={this.refMiniMapContainer} />

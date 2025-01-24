@@ -100,6 +100,7 @@ export namespace Util {
 export namespace Util {
   export function getHandlerQueue(elem: Store.EventTarget, event: EventObject) {
     const queue = []
+    // Store中使用WeakMap进行cache缓存，缓存相关数据
     const store = Store.get(elem)
     const bag = store && store.events && store.events[event.type]
     const handlers = (bag && bag.handlers) || []
@@ -161,6 +162,7 @@ export namespace Util {
 
     // Add the remaining (directly-bound) handlers
     if (delegateCount < handlers.length) {
+      // 截取delegateCount之后的handler，也就是用于具体cell选择器的handler
       queue.push({ elem, handlers: handlers.slice(delegateCount) })
     }
 

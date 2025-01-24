@@ -102,7 +102,7 @@ export class CellView<
 
   constructor(cell: Entity, options: Partial<Options> = {}) {
     super()
-
+    // CellView中包含 Model中的Node、Edge
     this.cell = cell
     this.options = this.ensureOptions(options)
     this.graph = this.options.graph

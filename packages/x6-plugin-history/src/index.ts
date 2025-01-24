@@ -176,6 +176,7 @@ export class History
     this.model.on('batch:start', this.initBatchCommand, this)
     this.model.on('batch:stop', this.storeBatchCommand, this)
     if (this.options.eventNames) {
+      // 监听哪些事件操作需要进入撤销回退队列，统一进入addCommand中处理
       this.options.eventNames.forEach((name, index) => {
         this.handlers[index] = this.addCommand.bind(this, name)
         this.model.on(name, this.handlers[index])
@@ -525,11 +526,13 @@ export class History
   }
 
   protected push(cmd: History.Command, options: KeyValue) {
+    // 有新的操作进入撤销队列undoStack时，重做队列redoStack清空
     this.redoStack = []
     if (cmd.batch) {
       this.lastBatchIndex = Math.max(this.lastBatchIndex, 0)
       this.emit('batch', { cmd, options })
     } else {
+      // 操作进入撤销队列
       this.undoStackPush(cmd)
       this.consolidateCommands()
       this.notify('add', cmd, options)

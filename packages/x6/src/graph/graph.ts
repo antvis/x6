@@ -1,5 +1,5 @@
-import { Basecoat, NumberExt, Dom, KeyValue } from '@antv/x6-common'
-import { Point, Rectangle } from '@antv/x6-geometry'
+import { Basecoat, NumberExt, Dom, KeyValue } from '@antv/x6-common/es'
+import { Point, Rectangle } from '../../../x6-geometry/src/index'
 import { Model, Collection, Cell, Node, Edge } from '../model'
 import { CellView } from '../view'
 import * as Registry from '../registry'
@@ -52,6 +52,7 @@ export class Graph extends Basecoat<EventArgs> {
     this.css = new Css(this)
     this.view = new GraphView(this)
     this.defs = new Defs(this)
+    // 坐标（用于画布与客户端/浏览器的坐标转换）
     this.coord = new Coord(this)
     this.transform = new Transform(this)
     this.highlight = new Highlight(this)
@@ -68,6 +69,7 @@ export class Graph extends Basecoat<EventArgs> {
     this.renderer = new ViewRenderer(this)
     this.panning = new Panning(this)
     this.mousewheel = new Wheel(this)
+    // 虚拟渲染
     this.virtualRender = new VirtualRender(this)
     this.size = new Size(this)
   }
@@ -824,12 +826,21 @@ export class Graph extends Basecoat<EventArgs> {
 
   // #region coord
 
+  /**
+   * 将浏览器坐标转换为画布本地坐标并对齐到画布网格
+   * @param x
+   * @param y
+   * @returns
+   */
   snapToGrid(p: Point.PointLike): Point
   snapToGrid(x: number, y: number): Point
   snapToGrid(x: number | Point.PointLike, y?: number) {
     return this.coord.snapToGrid(x, y)
   }
-
+  /**
+   * 将页面坐标转换为画布本地坐标
+   * @param rect
+   */
   pageToLocal(rect: Rectangle.RectangleLike): Rectangle
   pageToLocal(x: number, y: number, width: number, height: number): Rectangle
   pageToLocal(p: Point.PointLike): Point
@@ -855,7 +866,10 @@ export class Graph extends Basecoat<EventArgs> {
 
     return this.coord.pageToLocalPoint(x, y)
   }
-
+  /**
+   * 将画布本地坐标转换为页面坐标
+   * @param rect 
+   */
   localToPage(rect: Rectangle.RectangleLike): Rectangle
   localToPage(x: number, y: number, width: number, height: number): Rectangle
   localToPage(p: Point.PointLike): Point
@@ -881,7 +895,10 @@ export class Graph extends Basecoat<EventArgs> {
 
     return this.coord.localToPagePoint(x, y)
   }
-
+  /**
+   * 将页面的浏览器坐标转换画布本地坐标
+   * @param rect 
+   */
   clientToLocal(rect: Rectangle.RectangleLike): Rectangle
   clientToLocal(x: number, y: number, width: number, height: number): Rectangle
   clientToLocal(p: Point.PointLike): Point
@@ -907,7 +924,10 @@ export class Graph extends Basecoat<EventArgs> {
 
     return this.coord.clientToLocalPoint(x, y)
   }
-
+  /**
+   * 将页面的浏览器坐标转换画布本地坐标
+   * @param rect 
+   */
   localToClient(rect: Rectangle.RectangleLike): Rectangle
   localToClient(x: number, y: number, width: number, height: number): Rectangle
   localToClient(p: Point.PointLike): Point
@@ -935,6 +955,7 @@ export class Graph extends Basecoat<EventArgs> {
   }
 
   /**
+   * 将画布本地坐标转换为画布坐标
    * Transform the rectangle `rect` defined in the local coordinate system to
    * the graph coordinate system.
    */
@@ -975,7 +996,10 @@ export class Graph extends Basecoat<EventArgs> {
 
     return this.coord.localToGraphPoint(x, y)
   }
-
+  /**
+   * 将画布坐标转换为画布本地坐标
+   * @param rect 
+   */
   graphToLocal(rect: Rectangle.RectangleLike): Rectangle
   graphToLocal(x: number, y: number, width: number, height: number): Rectangle
   graphToLocal(p: Point.PointLike): Point

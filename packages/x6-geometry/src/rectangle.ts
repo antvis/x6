@@ -624,6 +624,7 @@ export class Rectangle extends Geometry implements Rectangle.RectangleLike {
 
   /**
    * Returns a rectangle that is a union of this rectangle and rectangle `rect`.
+   * 返回一个矩形区域，该矩形是两个矩形区域的并集(最大区域)。
    */
   union(rect: Rectangle.RectangleLike | Rectangle.RectangleData) {
     const ref = Rectangle.clone(rect)

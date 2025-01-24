@@ -27,6 +27,7 @@ export namespace Store {
 
   export function ensure(target: EventTarget) {
     if (!cache.has(target)) {
+      // 构建以element为key 的events对象
       cache.set(target, { events: Object.create(null) })
     }
     return cache.get(target)!

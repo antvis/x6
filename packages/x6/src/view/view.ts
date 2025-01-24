@@ -1,4 +1,4 @@
-import { Dom, KeyValue, Basecoat } from '@antv/x6-common'
+import { Dom, KeyValue, Basecoat } from '../../../x6-common/src/index.ts'
 import { EventArgs } from '@antv/x6-common/lib/event/types'
 import { Config } from '../config'
 import { Markup } from './markup'
@@ -111,7 +111,7 @@ export abstract class View<A extends EventArgs = any> extends Basecoat<A> {
       if (current === this.container) {
         return null
       }
-
+      // 向上递归寻找拥有指定属性attrName的元素
       current = current.parentNode as Element
     }
 
