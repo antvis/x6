@@ -80,7 +80,7 @@ export class KeyboardImpl extends Disposable implements IDisablable {
   }
 
   trigger(key: string, action?: KeyboardImpl.Action) {
-    this.mousetrap.trigger(key, action)
+    this.mousetrap.trigger(this.formatkey(key), action)
   }
 
   private focus(e: EventArgs['node:mouseup']) {
