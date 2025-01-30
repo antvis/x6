@@ -725,6 +725,13 @@ export class Cell<
     return this
   }
 
+  setDataSilently<T = Properties['data']>(
+    data: T,
+    options: Cell.SetOptions = {},
+  ) {
+    return this.setData(data, { ...options, silent: true })
+  }
+
   replaceData<T = Properties['data']>(data: T, options: Cell.SetOptions = {}) {
     return this.setData(data, { ...options, overwrite: true })
   }

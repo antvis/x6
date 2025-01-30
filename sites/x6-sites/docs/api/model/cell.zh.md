@@ -1377,6 +1377,22 @@ node.setData({
 }) // 此时会触发节点重绘
 ```
 
+#### setDataSilently(...)
+
+```ts
+setDataSilently(data: any, options: Cell.SetOptions = {}): this
+```
+
+静默设置关联的数据，不触发`change:data`事件和画布重绘，相当于调用 `setData(data, { ...options, silent: true })`。
+
+| 名称             | 类型    | 必选 | 默认值  | 描述                                             |
+|------------------|---------|:----:|---------|--------------------------------------------------|
+| data             | any     |  ✓   |         |                                                  |
+| options.overwrite | boolean |      | `false` | 为 `true` 时替换现有值，否则根据 `options.deep` 选项进行深度或浅度 merge。               |
+| options.deep      | boolean |      | `true`  | 当 `options.overwrite` 为 `false` 时有效， 为 `true` 时进行深度 merge，否则进行浅 merge。 |
+| options...others | object  |      |         | 其他自定义键值对，可以在事件回调中使用。           |
+
+
 #### replaceData(...)
 
 ```ts
