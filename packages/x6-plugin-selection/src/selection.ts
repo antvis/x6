@@ -126,7 +126,9 @@ export class SelectionImpl extends View<SelectionImpl.EventArgs> {
     const { ui, selection, translateBy, snapped } = options
 
     const allowTranslating =
-      (showNodeSelectionBox !== true || (pointerEvents && this.getPointerEventsValue(pointerEvents) === 'none')) &&
+      (showNodeSelectionBox !== true ||
+        (pointerEvents &&
+          this.getPointerEventsValue(pointerEvents) === 'none')) &&
       !this.translating &&
       !selection
 
@@ -738,7 +740,12 @@ export class SelectionImpl extends View<SelectionImpl.EventArgs> {
 
   protected updateContainerPosition(offset: { dx: number; dy: number }) {
     if (offset.dx || offset.dy) {
-      this.updateElementPosition(this.selectionContainer, offset.dx, offset.dy)
+      const scale = this.graph.transform.getScale()
+      this.updateElementPosition(
+        this.selectionContainer,
+        offset.dx * scale.sx,
+        offset.dy * scale.sy,
+      )
     }
   }
 
@@ -807,7 +814,9 @@ export class SelectionImpl extends View<SelectionImpl.EventArgs> {
     )
   }
 
-  protected getPointerEventsValue(pointerEvents: 'none' | 'auto' | ((cells: Cell[]) => 'none' | 'auto')) {
+  protected getPointerEventsValue(
+    pointerEvents: 'none' | 'auto' | ((cells: Cell[]) => 'none' | 'auto'),
+  ) {
     return typeof pointerEvents === 'string'
       ? pointerEvents
       : pointerEvents(this.cells)
