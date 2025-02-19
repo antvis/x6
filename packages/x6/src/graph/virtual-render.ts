@@ -3,9 +3,13 @@ import { Base } from './base'
 
 export class VirtualRenderManager extends Base {
   protected init() {
-    this.resetRenderArea = FunctionExt.throttle(this.resetRenderArea, 200, {
-      leading: true,
-    })
+    this.resetRenderArea = FunctionExt.throttle(
+      FunctionExt.throttle(this.resetRenderArea, 200, {
+        leading: true,
+      }),
+      1,
+      { leading: false },
+    )
     this.resetRenderArea()
     this.startListening()
   }
@@ -14,12 +18,14 @@ export class VirtualRenderManager extends Base {
     this.graph.on('translate', this.resetRenderArea, this)
     this.graph.on('scale', this.resetRenderArea, this)
     this.graph.on('resize', this.resetRenderArea, this)
+    this.graph.on('scroller:scroll', this.resetRenderArea, this)
   }
 
   protected stopListening() {
     this.graph.off('translate', this.resetRenderArea, this)
     this.graph.off('scale', this.resetRenderArea, this)
     this.graph.off('resize', this.resetRenderArea, this)
+    this.graph.off('scroller:scroll', this.resetRenderArea, this)
   }
 
   enableVirtualRender() {
@@ -34,7 +40,10 @@ export class VirtualRenderManager extends Base {
 
   resetRenderArea() {
     if (this.options.virtual) {
-      const renderArea = this.graph.getGraphArea()
+      const scroller = this.graph.getPlugin<any>('scroller')
+      const renderArea = scroller
+        ? scroller.getVisibleArea()
+        : this.graph.getGraphArea()
       this.graph.renderer.setRenderArea(renderArea)
     }
   }

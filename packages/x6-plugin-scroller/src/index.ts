@@ -57,6 +57,7 @@ export class Scroller
     this.setup()
     this.startListening()
     this.updateClassName()
+    this.scrollerImpl.init()
     this.scrollerImpl.center()
   }
 
@@ -64,6 +65,12 @@ export class Scroller
 
   resize(width?: number, height?: number) {
     this.scrollerImpl.resize(width, height)
+    const size = {
+      width: this.scrollerImpl.options.width,
+      height: this.scrollerImpl.options.height,
+    }
+    this.trigger('resize', size)
+    this.graph.trigger('resize', size)
   }
 
   resizePage(width?: number, height?: number) {
@@ -105,8 +112,15 @@ export class Scroller
     return this
   }
 
-  center(optons?: ScrollerImpl.CenterOptions) {
-    return this.centerPoint(optons)
+  /**
+   * Returns the untransformed size and origin of the current viewport.
+   */
+  getVisibleArea() {
+    return this.scrollerImpl.getVisibleArea()
+  }
+
+  center(options?: ScrollerImpl.CenterOptions) {
+    return this.centerPoint(options)
   }
 
   centerPoint(
@@ -119,7 +133,7 @@ export class Scroller
     y: number,
     options?: ScrollerImpl.CenterOptions,
   ): this
-  centerPoint(optons?: ScrollerImpl.CenterOptions): this
+  centerPoint(options?: ScrollerImpl.CenterOptions): this
   centerPoint(
     x?: number | null | ScrollerImpl.CenterOptions,
     y?: number | null,
@@ -336,6 +350,10 @@ export class Scroller
         this.onRightMouseDown,
       )
     }
+    this.onScroll = this.onScroll.bind(this)
+    this.scrollerImpl.container.addEventListener('scroll', this.onScroll, {
+      passive: true,
+    })
   }
 
   protected stopListening() {
@@ -358,6 +376,7 @@ export class Scroller
         this.onRightMouseDown,
       )
     }
+    this.scrollerImpl.container.removeEventListener('scroll', this.onScroll)
   }
 
   protected onRightMouseDown(e: Dom.MouseDownEvent) {
@@ -366,6 +385,12 @@ export class Scroller
       this.scrollerImpl.startPanning(e)
       this.scrollerImpl.once('pan:stop', () => this.updateClassName(false))
     }
+  }
+
+  protected onScroll(e: Event) {
+    const args = { e }
+    this.trigger('scroll', args)
+    this.graph.trigger('scroller:scroll', args)
   }
 
   protected preparePanning({ e }: { e: Dom.MouseDownEvent }) {

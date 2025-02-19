@@ -100,17 +100,17 @@ export class ScrollerImpl extends View<ScrollerImpl.EventArgs> {
     Dom.append(this.content, graphContainer)
     Dom.appendTo(this.content, this.container)
 
-    this.startListening()
+    this.backgroundManager = new ScrollerImpl.Background(this)
+  }
 
+  init() {
     if (!this.options.pageVisible) {
       this.graph.grid.update()
     }
-
-    this.backgroundManager = new ScrollerImpl.Background(this)
-
     if (!this.options.autoResize) {
       this.update()
     }
+    this.startListening()
   }
 
   protected startListening() {
@@ -490,8 +490,8 @@ export class ScrollerImpl extends View<ScrollerImpl.EventArgs> {
   /**
    * Position the center of graph to the center of the viewport.
    */
-  center(optons?: ScrollerImpl.CenterOptions) {
-    return this.centerPoint(optons)
+  center(options?: ScrollerImpl.CenterOptions) {
+    return this.centerPoint(options)
   }
 
   /**
@@ -510,7 +510,7 @@ export class ScrollerImpl extends View<ScrollerImpl.EventArgs> {
     y: number,
     options?: ScrollerImpl.CenterOptions,
   ): this
-  centerPoint(optons?: ScrollerImpl.CenterOptions): this
+  centerPoint(options?: ScrollerImpl.CenterOptions): this
   centerPoint(
     x?: number | null | ScrollerImpl.CenterOptions,
     y?: number | null,

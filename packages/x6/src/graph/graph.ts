@@ -556,12 +556,7 @@ export class Graph extends Basecoat<EventArgs> {
   }
 
   resize(width?: number, height?: number) {
-    const scroller = this.getPlugin<any>('scroller')
-    if (scroller) {
-      scroller.resize(width, height)
-    } else {
-      this.transform.resize(width, height)
-    }
+    this.size.resize(width, height)
     return this
   }
 
@@ -722,7 +717,7 @@ export class Graph extends Basecoat<EventArgs> {
     y: number,
     options?: Transform.CenterOptions,
   ): this
-  centerPoint(optons?: Transform.CenterOptions): this
+  centerPoint(options?: Transform.CenterOptions): this
   centerPoint(
     x?: number | null | Transform.CenterOptions,
     y?: number | null,
