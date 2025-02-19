@@ -1,4 +1,4 @@
-import { Dom, KeyValue, Basecoat } from '@antv/x6-common'
+import { Dom, KeyValue, Basecoat } from '/Users/lijiahao/Developer/github/X6/packages/x6-common'
 import { EventArgs } from '@antv/x6-common/lib/event/types'
 import { Config } from '../config'
 import { Markup } from './markup'

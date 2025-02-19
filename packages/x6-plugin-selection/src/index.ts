@@ -305,18 +305,40 @@ export class Selection
 
   protected startListening() {
     this.graph.on('blank:mousedown', this.onBlankMouseDown, this)
+    this.graph.on('blank:touchstart', this.onBlankMouseDown, this)
+    this.graph.on('cell:mousedown', this.onCellMouseDown, this)
+    this.graph.on('cell:touchstart', this.onCellMouseDown, this)
     this.graph.on('blank:click', this.onBlankClick, this)
     this.graph.on('cell:mousemove', this.onCellMouseMove, this)
+    this.graph.on('cell:touchmove', this.onCellMouseMove, this)
     this.graph.on('cell:mouseup', this.onCellMouseUp, this)
+    // this.graph.on('cell:touchend', this.onCellMouseUp, this)
     this.selectionImpl.on('box:mousedown', this.onBoxMouseDown, this)
+    this.selectionImpl.on('box:touchstart', this.onBoxMouseDown, this)
   }
 
   protected stopListening() {
     this.graph.off('blank:mousedown', this.onBlankMouseDown, this)
+    this.graph.off('blank:touchstart', this.onBlankMouseDown, this)
+    this.graph.off('cell:mousedown', this.onCellMouseDown, this)
+    this.graph.off('cell:touchstart', this.onCellMouseDown, this)
     this.graph.off('blank:click', this.onBlankClick, this)
     this.graph.off('cell:mousemove', this.onCellMouseMove, this)
+    this.graph.off('cell:touchmove', this.onCellMouseMove, this)
     this.graph.off('cell:mouseup', this.onCellMouseUp, this)
+    // this.graph.off('cell:touchend', this.onCellMouseUp, this)
     this.selectionImpl.off('box:mousedown', this.onBoxMouseDown, this)
+    this.selectionImpl.off('box:touchstart', this.onBoxMouseDown, this)
+  }
+
+  protected onCellMouseDown(event: EventArgs['cell:mousedown']) {
+    // !this.isSelected(event.cell)
+    if (
+      event.cell == null ||
+      this.selectionImpl.filter([event.cell]).length === 0
+    ) {
+      this.onBlankMouseDown(event)
+    }
   }
 
   protected onBlankMouseDown({ e }: EventArgs['blank:mousedown']) {
@@ -335,10 +357,11 @@ export class Selection
     }
   }
 
-  protected allowBlankMouseDown(e: Dom.MouseDownEvent) {
+  protected allowBlankMouseDown(e: Dom.MouseDownEvent | Dom.TouchStartEvent) {
     const eventTypes = this.options.eventTypes
     return (
-      (eventTypes?.includes('leftMouseDown') && e.button === 0) ||
+      (eventTypes?.includes('leftMouseDown') &&
+        (e.button === 0 || e.touches?.length === 1)) ||
       (eventTypes?.includes('mouseWheelDown') && e.button === 1)
     )
   }
@@ -365,7 +388,20 @@ export class Selection
     this.movedMap.set(cell, true)
   }
 
+  private touchTimer: NodeJS.Timeout | null = null
+
   protected onCellMouseUp({ e, cell }: EventArgs['cell:mouseup']) {
+    // 在 selection 插件的外出有逻辑把触摸事件转成了鼠标点击事件，这是多余的
+    // 这样会导致本事件被重复触发了两次，导致 select 和 unselect 操作失效
+    // 所以检测到是触摸模式的时候需要过滤掉非触摸事件
+    if (e.touches) {
+      // 如果是触摸事件，则未来一秒内都设置为触摸模式，过滤鼠标事件
+      this.touchTimer = setTimeout(() => {
+        this.touchTimer = null
+      }, 1000)
+    } else if (this.touchTimer) {
+      return
+    }
     const options = this.options
     let disabled = this.disabled
     if (!disabled && this.movedMap.has(cell)) {
@@ -379,10 +415,19 @@ export class Selection
         disabled = options.selectEdgeOnMoved === false && cell.isEdge()
       }
     }
-
     if (!disabled) {
       if (!this.allowMultipleSelection(e)) {
-        this.reset(cell)
+        // 如果是触摸模式，不需要按快捷键就应该启动多选功能，默认开启
+        // 触摸模式下不能直接通过修改 allowMultipleSelection 方法来判断是否需要多选，因为跟鼠标事件的多选判断逻辑不兼容
+        if (this.options.multiple && this.touchTimer) {
+          if (this.isSelected(cell)) {
+            this.unselect(cell)
+          } else {
+            this.select(cell)
+          }
+        } else {
+          this.reset(cell)
+        }
       } else if (this.unselectMap.has(cell)) {
         this.unselectMap.delete(cell)
       } else if (this.isSelected(cell)) {

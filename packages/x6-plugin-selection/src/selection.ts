@@ -22,6 +22,7 @@ export class SelectionImpl extends View<SelectionImpl.EventArgs> {
   protected selectionContent: HTMLElement
   protected boxCount: number
   protected boxesUpdated: boolean
+  private stopSelectionBoxMouseDownEventTimer?: NodeJS.Timeout
 
   public get graph() {
     return this.options.graph
@@ -126,7 +127,9 @@ export class SelectionImpl extends View<SelectionImpl.EventArgs> {
     const { ui, selection, translateBy, snapped } = options
 
     const allowTranslating =
-      (showNodeSelectionBox !== true || (pointerEvents && this.getPointerEventsValue(pointerEvents) === 'none')) &&
+      (showNodeSelectionBox !== true ||
+        (pointerEvents &&
+          this.getPointerEventsValue(pointerEvents) === 'none')) &&
       !this.translating &&
       !selection
 
@@ -287,7 +290,12 @@ export class SelectionImpl extends View<SelectionImpl.EventArgs> {
       moving: false,
     })
 
-    this.delegateDocumentEvents(Private.documentEvents, evt.data)
+    // this.delegateDocumentEvents(Private.documentEvents, evt.data)
+    this.addEventListeners(
+      this.graph.container,
+      Private.documentEvents,
+      evt.data,
+    )
   }
 
   filter(cells: Cell[]) {
@@ -331,6 +339,7 @@ export class SelectionImpl extends View<SelectionImpl.EventArgs> {
       }
 
       case 'translating': {
+        if (evt.clientX == null || evt.clientY == null) break
         const client = graph.snapToGrid(evt.clientX, evt.clientY)
         if (!this.options.following) {
           const data = eventData as EventData.Translating
@@ -355,13 +364,17 @@ export class SelectionImpl extends View<SelectionImpl.EventArgs> {
     const action = this.getEventData<EventData.Common>(evt).action
     if (action) {
       this.stopSelecting(evt)
-      this.undelegateDocumentEvents()
+      // this.undelegateDocumentEvents()
+      this.removeEventListeners(this.graph.container)
     }
   }
 
   protected onSelectionBoxMouseDown(evt: Dom.MouseDownEvent) {
     if (!this.options.following) {
       evt.stopPropagation()
+    }
+    if (this.stopSelectionBoxMouseDownEventTimer) {
+      return
     }
 
     const e = this.normalizeEvent(evt)
@@ -374,7 +387,8 @@ export class SelectionImpl extends View<SelectionImpl.EventArgs> {
     this.setEventData<EventData.SelectionBox>(e, { activeView })
     const client = this.graph.snapToGrid(e.clientX, e.clientY)
     this.notifyBoxEvent('box:mousedown', e, client.x, client.y)
-    this.delegateDocumentEvents(Private.documentEvents, e.data)
+    // this.delegateDocumentEvents(Private.documentEvents, e.data)
+    this.addEventListeners(this.graph.container, Private.documentEvents, e.data)
   }
 
   protected startTranslating(evt: Dom.MouseDownEvent) {
@@ -492,8 +506,15 @@ export class SelectionImpl extends View<SelectionImpl.EventArgs> {
     return { scrollerX: 0, scrollerY: 0 }
   }
 
-  protected adjustSelection(evt: Dom.MouseMoveEvent) {
+  protected adjustSelection(evt: Dom.MouseMoveEvent | Dom.TouchMoveEvent) {
+    // 过滤双指触摸事件，避免跟其它插件冲突，这是单指框选方法，不需要双指事件的
+    if (evt.touches?.length && evt.touches?.length >= 2) {
+      return
+    }
     const e = this.normalizeEvent(evt)
+    if (e.clientX == null || e.clientY == null) {
+      return
+    }
     const eventData = this.getEventData<EventData.Common>(e)
     const action = eventData.action
     switch (action) {
@@ -807,7 +828,9 @@ export class SelectionImpl extends View<SelectionImpl.EventArgs> {
     )
   }
 
-  protected getPointerEventsValue(pointerEvents: 'none' | 'auto' | ((cells: Cell[]) => 'none' | 'auto')) {
+  protected getPointerEventsValue(
+    pointerEvents: 'none' | 'auto' | ((cells: Cell[]) => 'none' | 'auto'),
+  ) {
     return typeof pointerEvents === 'string'
       ? pointerEvents
       : pointerEvents(this.cells)
@@ -819,30 +842,43 @@ export class SelectionImpl extends View<SelectionImpl.EventArgs> {
     if (this.canShowSelectionBox(cell)) {
       const view = this.graph.renderer.findViewByCell(cell)
       if (view) {
-        const bbox = view.getBBox({
-          useCellGeometry: true,
-        })
-
+        // 因为移动端的触摸事件触发频率太高了，导致新创建的矩形一渲染就被触发了触摸按下的事件，所以需要加冷却
+        if (this.stopSelectionBoxMouseDownEventTimer) {
+          clearTimeout(this.stopSelectionBoxMouseDownEventTimer)
+        }
+        this.stopSelectionBoxMouseDownEventTimer = setTimeout(() => {
+          this.stopSelectionBoxMouseDownEventTimer = undefined
+        }, 250)
         const className = this.boxClassName
         const box = document.createElement('div')
-        const pointerEvents = this.options.pointerEvents
         Dom.addClass(box, className)
         Dom.addClass(box, `${className}-${cell.isNode() ? 'node' : 'edge'}`)
         Dom.attr(box, 'data-cell-id', cell.id)
-        Dom.css(box, {
-          position: 'absolute',
-          left: bbox.x,
-          top: bbox.y,
-          width: bbox.width,
-          height: bbox.height,
-          pointerEvents: pointerEvents
-            ? this.getPointerEventsValue(pointerEvents)
-            : 'auto',
-        })
+        this.updateBoxPosition(box, cell)
         Dom.appendTo(box, this.container)
         this.showSelected()
         this.boxCount += 1
       }
+    }
+  }
+
+  protected updateBoxPosition(box: Element, cell: Cell) {
+    const view = this.graph.renderer.findViewByCell(cell)
+    if (view) {
+      const bbox = view.getBBox({
+        useCellGeometry: true,
+      })
+      const pointerEvents = this.options.pointerEvents
+      Dom.css(box, {
+        position: 'absolute',
+        left: bbox.x,
+        top: bbox.y,
+        width: bbox.width,
+        height: bbox.height,
+        pointerEvents: pointerEvents
+          ? this.getPointerEventsValue(pointerEvents)
+          : 'auto',
+      })
     }
   }
 
@@ -856,7 +892,6 @@ export class SelectionImpl extends View<SelectionImpl.EventArgs> {
 
   confirmUpdate() {
     if (this.boxCount) {
-      this.hide()
       for (
         let i = 0, $boxes = this.$boxes, len = $boxes.length;
         i < len;
@@ -864,12 +899,9 @@ export class SelectionImpl extends View<SelectionImpl.EventArgs> {
       ) {
         const box = $boxes[i]
         const cellId = Dom.attr(box, 'data-cell-id')
-        Dom.remove(box)
-        this.boxCount -= 1
         const cell = this.collection.get(cellId)
-        if (cell) {
-          this.createSelectionBox(cell)
-        }
+
+        if (cell) this.updateBoxPosition(box, cell)
       }
 
       this.updateContainer()
