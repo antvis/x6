@@ -573,7 +573,11 @@ export class SelectionImpl extends View<SelectionImpl.EventArgs> {
     if (otherOptions && otherOptions.translateBy) {
       const currentCell = this.graph.getCellById(otherOptions.translateBy)
       if (currentCell) {
-        map[currentCell.id] = true
+        // 问题：开启snapline后，当我们框选圆形组件、node2矩形组件（node2中有一个node3被embedding时）,translateby是node2时，导致node2和组合在一起的node3移动错乱，并且node1移动错误的bug
+        // 解决方法：
+        //      当我们在translateby == node2时，node3获取到位置改变事件后，需要触发node2的移动，，不应该将node2放到移动排除列表中，这样会导致node2不会移动。
+        //      我的改造方式是：注释掉代码map[currentCell.id] = true，在embedding时，父控件会跟随子控件位置发生改变
+
         currentCell.getDescendants({ deep: true }).forEach((child) => {
           map[child.id] = true
         })
