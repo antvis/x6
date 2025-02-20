@@ -83,6 +83,11 @@ export class Cell<
     }, metadata)
   }
 
+  // eslint-disable-next-line
+  public static customId(metadata: Cell.Metadata = {}) {
+    return StringExt.uuid()
+  }
+
   // #endregion
 
   protected get [Symbol.toStringTag]() {
@@ -107,7 +112,7 @@ export class Cell<
       this.preprocess(metadata),
     )
 
-    this.id = props.id || StringExt.uuid()
+    this.id = props.id || Cell.customId(metadata)
     this.store = new Store(props)
     this.animation = new Animation(this)
     this.setup()
@@ -140,7 +145,7 @@ export class Cell<
     const props = ctor.applyPropHooks(this, metadata)
 
     if (id == null && ignoreIdCheck !== true) {
-      props.id = StringExt.uuid()
+      props.id = Cell.customId(metadata)
     }
 
     return props as Properties
