@@ -1038,7 +1038,8 @@ export class Model extends Basecoat<Model.EventArgs> {
       typeof x === 'number' ? options : (y as Model.GetCellsInAreaOptions)
     const strict = opts && opts.strict
     return this.getNodes().filter((node) => {
-      const bbox = node.getBBox()
+      const angle = node.angle()
+      const bbox = node.getBBox().bbox(angle)
       return strict ? rect.containsRect(bbox) : rect.isIntersectWithRect(bbox)
     })
   }
